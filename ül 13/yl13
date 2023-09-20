@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Funktsioon "varunda"
+varunda() {
+    local kataloogi_tee="$1"
+    
+    # Kontrollime, kas antud kataloog on olemas
+    if [ ! -d "$kataloogi_tee" ]; then
+        echo "Hoiatus: Kataloog $kataloogi_tee ei eksisteeri!"
+        return 1
+    fi
+
+    # Loome backup-kausta samale tasemele antud kataloogiga
+    backup_kaust="${kataloogi_tee}_backup"
+    mkdir -p "$backup_kaust"
+
+    # Genereerime kuupäeva ja kellaaja vormingus "YYYY-MM-DD_HH-MM-SS"
+    aeg=$(date "+%Y-%m-%d_%H-%M-%S")
+
+    # Varundame kataloogi kõik failid
+    for fail in "$kataloogi_tee"/*; do
+        if [ -f "$fail" ]; then
+            failinimi=$(basename "$fail")
+            varundatud_fail="$backup_kaust/${failinimi%.*}_${aeg}.${failinimi##*.}"
+            cp "$fail" "$varundatud_fail"
+            echo "Fail $failinimi varundati kausta $backup_kaust kui $varundatud_fail."
+        fi
+    done
+}
+
+# Küsime kasutajalt kataloogi tee
+read -p "Sisesta kataloogi tee, mille soovid varundada: " kataloogi_tee
+
+# Kasutame funktsiooni varunda, andes talle kataloogi tee
+varunda "$kataloogi_tee"

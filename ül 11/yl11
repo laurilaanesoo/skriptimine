@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Funktsioon, mis kontrollib ja teatab teenuse olekut
+check_service_status() {
+    local teenuse_nimi="$1"
+
+    # Kontrolli, kas teenus on aktiivne
+    if systemctl is-active --quiet $teenuse_nimi; then
+        echo "$teenuse_nimi on aktiivne ja töötab."
+    else
+        echo "$teenuse_nimi ei ole aktiivne!"
+    fi
+}
+
+# Küsi kasutajalt teenuse nimi
+read -p "Sisesta teenuse nimi: " sisestatud_nimi
+
+# Loend Debian'i tavalistest teenustest
+debian_teenused=("ssh" "mysql" "apache2" "nginx" "cron" "sshd" "postgresql" "lightdm" "gdm" "samba")
+
+# Kontrolli, kas sisestatud teenus kuulub Debian'i tavaliste teenuste hulka
+if [[ " ${debian_teenused[@]} " =~ " $sisestatud_nimi " ]]; then
+    check_service_status $sisestatud_nimi
+else
+    echo "Tundmatu teenus: $sisestatud_nimi"
+fi

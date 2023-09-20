@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Kontrollime, kas nimekiri.txt on olemas ja see on fail
+if [ ! -f "nimekiri.txt" ]; then
+    echo "Hoiatus: nimekiri.txt ei ole fail või ei eksisteeri!"
+    exit 1
+fi
+
+# Loome kasutajad nimekirjast
+while read -r rida; do
+    # Muudame nimed väiketähtedeks ja asendame täpitähed
+    nimi=$(echo "$rida" | tr '[:upper:]' '[:lower:]' | tr 'õüäö' 'ouao')
+
+    # Loome kasutajanime, kus liidame eesnime ja perenime kokku punktiga
+    kasutajanimi=$(echo "$nimi" | sed 's/ /./g')
+
+    # Loome parooli
+    parool=$(date +%s%N${RANDOM}${RANDOM} | sha256sum | head -c12)
+
+    # Loome kasutaja ja määrame talle loodud parooli
+    sudo useradd -m -p $(openssl passwd -1 $parool) $kasutajanimi
+
+    # Väljastame kasutajanime ja parooli
+    echo "$kasutajanimi $parool"
+
+done < "nimekiri.txt"

@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Küsi kasutajanime
+read -p "Sisesta uue kasutaja nimi: " kasutajanimi
+
+# Küsi parooli, kuid peida sisestatud tekst
+read -s -p "Sisesta parool uuele kasutajale: " parool
+
+# Kontrolli, kas gruppi on antud
+if [ $# -eq 1 ]; then
+    gruppinimi=$1
+else
+    gruppinimi="kylaline"
+fi
+
+# Loome uue kasutaja ja lisame ta gruppi
+sudo useradd -m -p $(openssl passwd -1 $parool) -g $gruppinimi $kasutajanimi
+
+# Loome kodukataloogi kausta
+sudo mkdir -p /home/$kasutajanimi/kataloog
+
+# Loome tervitusfaili
+sudo touch /home/$kasutajanimi/kataloog/teretulemast_$kasutajanimi.txt
+
+# Määrame kasutaja omandi tervitusfailile
+sudo chown $kasutajanimi:$kasutajanimi /home/$kasutajanimi/kataloog/teretulemast_$kasutajanimi.txt
+
+# Tervitusfaili kirjutamine
+echo "Tere tulemast, $kasutajanimi!" | sudo tee /home/$kasutajanimi/kataloog/teretulemast_$kasutajanimi.txt
+
+echo "Kasutaja $kasutajanimi on edukalt loodud gruppi $gruppinimi."
+
